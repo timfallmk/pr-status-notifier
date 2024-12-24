@@ -31,7 +31,7 @@ jobs:
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           
       - name: Generate Changelog
-        uses: timfallmk/github-changelog-generator-action@latest
+        uses: timfallmk/github-changelog-generator-action@0.0.2
         id: changelog
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
