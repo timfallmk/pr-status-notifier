@@ -34,16 +34,7 @@ jobs:
         uses: timfallmk/github-changelog-generator-action@0.0.2
         id: changelog
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          futureRelease: ${{ steps.get_tag.outputs.version }}
-          sinceTag: v0.0.0
-          breakingLabel: '### 🚨 Breaking Changes'
-          enhancementLabel: '### 🚀 Enhancements'
-          bugsLabel: '### 🐛 Bug Fixes'
-          securityLabel: '### 🔒 Security Updates'
-          issuesLabel: '### 📋 Other Issues'
-          prLabel: '### 📦 Other Pull Requests'
-          addSections: '{"documentation":{"prefix":"### 📚 Documentation","labels":["documentation"]},"dependencies":{"prefix":"### ⬆️ Dependencies","labels":["dependencies"]}}'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Create Release
         uses: softprops/action-gh-release@v1
