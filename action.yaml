@@ -1,0 +1,32 @@
+name: 'PR Check Status Notifier'
+description: 'Monitors PR checks and notifies when all checks (except specified ones) have passed'
+author: 'Your Name'
+
+inputs:
+  github-token:
+    description: 'GitHub token for API access'
+    required: true
+    default: ${{ github.token }}
+  excluded-checks:
+    description: 'Comma-separated list of check names to exclude'
+    required: false
+    default: 'atlantis/apply,Check Status & Notify'
+  notification-message:
+    description: 'Custom notification message (use {user} for PR owner mention)'
+    required: false
+    default: '@{user} All checks have passed! ✅\nThis PR is ready for `atlantis apply` and merge.\n\n*Note*: The `atlantis apply` status check will show as passed after running the command.'
+
+runs:
+  using: 'composite'
+  steps:
+    - run: ${{ github.action_path }}/pr-check-notifier.sh
+      shell: bash
+      env:
+        INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
+        INPUT_EXCLUDED_CHECKS: ${{ inputs.excluded-checks }}
+        INPUT_NOTIFICATION_MESSAGE: ${{ inputs.notification-message }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+
+branding:
+  icon: 'check-circle'
+  color: 'green'
