@@ -19,7 +19,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - run: ${{ github.action_path }}/pr-check-notifier.sh
+    - run: ${{ github.action_path }}/run-action.sh
       shell: bash
       env:
         INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
