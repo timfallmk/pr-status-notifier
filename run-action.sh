@@ -40,5 +40,15 @@ fi
 # Make binary executable (in case git didn't preserve permissions)
 chmod +x "$BINARY_PATH"
 
-# Execute the binary
-exec "$BINARY_PATH"
+# Debug: Print environment variables
+echo "Checking environment variables:"
+echo "GITHUB_TOKEN: ${GITHUB_TOKEN:-(not set)}"
+echo "INPUT_GITHUB_TOKEN: ${INPUT_GITHUB_TOKEN:-(not set)}"
+
+# Execute the binary with explicit environment variables
+exec env \
+  GITHUB_TOKEN="$GITHUB_TOKEN" \
+  INPUT_GITHUB_TOKEN="$INPUT_GITHUB_TOKEN" \
+  INPUT_EXCLUDED_CHECKS="$INPUT_EXCLUDED_CHECKS" \
+  INPUT_NOTIFICATION_MESSAGE="$INPUT_NOTIFICATION_MESSAGE" \
+  "$BINARY_PATH"
