@@ -39,6 +39,7 @@ func getInput(name string) string {
 func main() {
 	// Get action inputs
 	token := getInput("github-token")
+	fmt.Printf("token: %v\n", token)
 	if token == "" {
 		fail("github-token input is required")
 	}
