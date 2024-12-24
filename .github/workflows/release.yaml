@@ -1,0 +1,77 @@
+name: Release Action
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags
+
+permissions:
+  contents: write  # Needed for creating releases
+  pull-requests: read  # Needed for changelog generation
+  issues: read  # Needed for changelog generation
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'  # Specify your Go version here
+          
+      - name: Build binaries
+        run: |
+          chmod +x build.sh
+          ./build.sh
+          
+      - name: Get tag version
+        id: get_tag
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          
+      - name: Generate Changelog
+        uses: timfallmk/github-changelog-generator-action@latest
+        id: changelog
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          futureRelease: ${{ steps.get_tag.outputs.version }}
+          sinceTag: v0.0.0
+          breakingLabel: '### 🚨 Breaking Changes'
+          enhancementLabel: '### 🚀 Enhancements'
+          bugsLabel: '### 🐛 Bug Fixes'
+          securityLabel: '### 🔒 Security Updates'
+          issuesLabel: '### 📋 Other Issues'
+          prLabel: '### 📦 Other Pull Requests'
+          addSections: '{"documentation":{"prefix":"### 📚 Documentation","labels":["documentation"]},"dependencies":{"prefix":"### ⬆️ Dependencies","labels":["dependencies"]}}'
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ steps.get_tag.outputs.version }}
+          body: |
+            PR Check Notifier Action ${{ steps.get_tag.outputs.version }}
+            
+            ## Usage
+            ```yaml
+            - uses: timfallmk/pr-status-notifier@${{ steps.get_tag.outputs.version }}
+              with:
+                github-token: ${{ '${{ secrets.GITHUB_TOKEN }}' }}
+                excluded-checks: atlantis/apply,Check Status & Notify
+                notification-message: '@{user} All checks have passed! 🎉'
+            ```
+
+            ## What's Changed
+            ${{ steps.changelog.outputs.changelog }}
+          files: |
+            pr-check-notifier-*
+            run-action.sh
+            action.yml
+          draft: false
+          prerelease: false
+          
+      - name: Generate major version tag
+        run: |
+          git tag -f ${GITHUB_REF#refs/tags/v} refs/tags/${{ steps.get_tag.outputs.version }}
+          git tag -f v${GITHUB_REF#refs/tags/v}* refs/tags/${{ steps.get_tag.outputs.version }}
+          git push -f origin v${GITHUB_REF#refs/tags/v}*
